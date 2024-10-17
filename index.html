@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Booking - Check Availability</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="date"],
+        select {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #6a11cb;
+            outline: none;
+        }
+
+        input[type="submit"] {
+            background-color: #6a11cb;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #4c009e;
+            transform: translateY(-2px);
+        }
+
+        .time-select {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input[type="date"],
+            select,
+            input[type="submit"] {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Check Room Availability</h2>
+
+    <form action="process_booking1.php" method="POST" onsubmit="return validateForm()">
+        <label for="booking_date">Booking Date *</label>
+        <input type="date" id="booking_date" name="booking_date" required>
+
+        <label for="start_time">Start Time *</label>
+        <div class="time-select">
+            <select id="start_time_hour" name="start_time_hour" required>
+                <option value="">--Hour--</option>
+                <!-- JavaScript will populate hour options -->
+            </select>
+            <select id="start_time_minute" name="start_time_minute" required>
+                <option value="">--Min--</option>
+                <option value="00">00</option>
+                <option value="30">30</option>
+                <option value="59">59</option>
+            </select>
+        </div>
+
+        <label for="end_time">End Time *</label>
+        <div class="time-select">
+            <select id="end_time_hour" name="end_time_hour" required>
+                <option value="">--Hour--</option>
+                <!-- JavaScript will populate hour options -->
+            </select>
+            <select id="end_time_minute" name="end_time_minute" required>
+                <option value="">--Min--</option>
+                <option value="00">00</option>
+                <option value="30">30</option>
+                <option value="59">59</option>
+            </select>
+        </div>
+
+        <label for="room_location">Room Location *</label>
+        <select id="room_location" name="room_location" required>
+            <option value="">--Select Location--</option>
+            <option value="Building A - Room 101">Building A - Room 101</option>
+            <option value="Building B - Room 202">Building B - Room 202</option>
+        </select>
+
+        <label for="room_capacity">Room Capacity *</label>
+        <select id="room_capacity" name="room_capacity" required>
+            <option value="">--Select Capacity--</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+
+        <input type="submit" value="Check Availability">
+
+        <p class="note">* Required fields</p>
+    </form>
+</div>
+
+<script>
+    // JavaScript to populate the hour dropdowns
+    function populateHours() {
+        const hourSelects = document.querySelectorAll('select[name*="_hour"]');
+        for (let i = 0; i < 24; i++) {
+            const hourFormatted = i.toString().padStart(2, '0'); // Ensure two digits
+            hourSelects.forEach(select => {
+                const option = document.createElement('option');
+                option.value = hourFormatted;
+                option.textContent = hourFormatted;
+                select.appendChild(option);
+            });
+        }
+    }
+
+    window.onload = populateHours;
+
+    function validateForm() {
+        const bookingDate = document.getElementById('booking_date').value;
+        const startHour = document.getElementById('start_time_hour').value;
+        const startMinute = document.getElementById('start_time_minute').value;
+        const endHour = document.getElementById('end_time_hour').value;
+        const endMinute = document.getElementById('end_time_minute').value;
+
+        if (startHour && startMinute && endHour && endMinute) {
+            const startDateTime = new Date(bookingDate + 'T' + startHour + ':' + startMinute);
+            const endDateTime = new Date(bookingDate + 'T' + endHour + ':' + endMinute);
+
+            if (endDateTime <= startDateTime) {
+                alert('End time must be greater than start time on the same day.');
+                return false; 
+            }
+        }
+
+        return true;
+    }
+</script>
+
+</body>
+</html>
